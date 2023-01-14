@@ -1,0 +1,32 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /api/tavsa
+spring:
+  main:
+    banner-mode: off
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://FERNANDO_:1433;database=cinema;encrypt=true;trustServerCertificate=true;
+    username: sa
+    password: fernando
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  mvc:
+    converters:
+      preferred-json-mapper: gson
+  gson:
+    date-format: yyyy-MM-dd HH:mm:ss
+cors:
+  url: http://localhost:3000
+
+task:
+  time-delay: PT10.00S
+  time-initial: PT20.00S
+
+log4j:
+  logger:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
