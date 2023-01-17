@@ -32,15 +32,27 @@ public class SalesService {
     @Autowired
     ISalesRepository salesRepository;
 
-    public ResponseDto getAll(){
+    public ResponseDto getAll() {
         return new ResponseSuccess(this.repository.findAll());
     }
 
-    public ResponseDto save(SalesDto dto){
+    public ResponseDto save(SalesDto dto) {
         List<SalesDetailEntity> savedSalesDetailList = new ArrayList<>();
-        try{
+        try {
             //Save sale
             SalesEntity sale = this.repository.save(dto.getSale());
+
+            //Verify tickets
+            dto.getTickets().forEach(ticketsEntity -> {
+                TicketsEntity ticketDao = this.ticketsRepository.findTopByDateAndSeatAndFunction_IdFunction(ticketsEntity.getDate(), ticketsEntity.getSeat(),ticketsEntity.getFunction().getIdFunction() );
+                try {
+                    if (ticketDao != null)
+                        throw new CinemaException(String.format("Can't buy ticket %s", ticketsEntity.getSeat()));
+                } catch (CinemaException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+            });
 
             //Save tickets
             List<TicketsEntity> savedTickets = this.ticketsRepository.saveAll(dto.getTickets());
@@ -57,7 +69,7 @@ public class SalesService {
 
             SalesEntity savedSale = this.salesRepository.findByIdSale(sale.getIdSale());
 
-            if(savedSale.getIdSale() != sale.getIdSale()) throw new CinemaException("Purchase error");
+            if (savedSale.getIdSale() != sale.getIdSale()) throw new CinemaException("Purchase error");
 
             SalesEntity saleConfirmed = new SalesEntity();
             saleConfirmed.setIdSale(savedSale.getIdSale());
@@ -69,23 +81,23 @@ public class SalesService {
             return new ResponseSuccess(saleConfirmed);
 
 
-        } catch (Exception ex){
-            return new ResponseError(500,ex.getMessage());
+        } catch (Exception ex) {
+            return new ResponseError(500, ex.getMessage());
         }
     }
 
-    public ResponseDto update(SalesEntity entity){
+    public ResponseDto update(SalesEntity entity) {
         return new ResponseSuccess(this.update(entity));
     }
 
-    public ResponseDto delete(int id){
+    public ResponseDto delete(int id) {
         SalesEntity entity = new SalesEntity();
         entity.setIdSale(id);
         this.repository.delete(entity);
         return new ResponseSuccess();
     }
 
-    public ResponseDto getById(int id){
+    public ResponseDto getById(int id) {
         return new ResponseSuccess(this.salesRepository.findByIdSale(id));
     }
 }
