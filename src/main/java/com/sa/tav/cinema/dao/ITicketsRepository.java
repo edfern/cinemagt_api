@@ -21,4 +21,7 @@ public interface ITicketsRepository extends JpaRepository<TicketsEntity, Integer
             "WHERE f.idFunction = :id \n" +
             "AND t.date = :date", nativeQuery = true)
     List<String> findSeatsByDate(@Param("id") int id, @Param("date") Date date);
+
+
+    TicketsEntity findTopByDateAndSeatAndFunction_IdFunction(Date date, String seat, int idFunction);
 }
